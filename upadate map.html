@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Map</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+  <script>
+    var map;
+
+    function initMap() {
+      // Inisialisasi peta dengan titik tengah tertentu
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -6.931526, lng: 110.199621},
+        zoom: 15
+      });
+
+      // Ambil data pelanggan dari Google Apps Script
+      fetch('https://script.google.com/macros/s/AKfycbzH_ja4N4DgLv7RxClAjqUON3viriC0e6BUPozVWZngUlJie1Z1ILEbunawOVGi_sZa/exec')  // Ganti dengan URL skrip web Anda
+        .then(response => response.json())
+        .then(data => {
+          // Tambahkan marker dan deskripsi dari data
+          data.forEach(function(item) {
+            var marker = new google.maps.Marker({
+              position: {lat: item.latitude, lng: item.longitude},
+              map: map,
+              title: item.companyName
+            });
+
+            // Menampilkan info jendela dengan detail perusahaan
+            var infowindow = new google.maps.InfoWindow({
+              content: `
+                <b>${item.companyName}</b><br>
+                ${item.description}<br>
+                Username: ${item.username}<br>
+                IP Network: ${item.ipNetwork}<br>
+                Host Range: ${item.hostRange}<br>
+                Email: ${item.email}
+              `
+            });
+
+            // Menambahkan event listener untuk klik marker
+            marker.addListener('click', function() {
+              infowindow.open(map, marker);
+            });
+          });
+        })
+        .catch(error => console.log('Error fetching data:', error));
+    }
+  </script>
+</head>
+<body onload="initMap()">
+  <div id="map" style="height: 100%;"></div>
+</body>
+</html>
